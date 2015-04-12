@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+  <title>Artefact</title>
+</head>
+<body>
+  <script src="scripts/vendor/jquery/jquery-1.7.2.min.js"></script> 
+  <script src="scripts/vendor/requirejs/require.js"></script>
+  <script>
+  
+  $(document).ready(function() {
+    requirejs.config({
+      baseUrl: 'scripts/game',
+      shim: {
+        'socketio': {
+          exports: 'io'
+        }
+      },
+      paths: {
+        "jquery"  : "../vendor/jquery/jquery-1.7.2.min",
+        "socketio": '/socket.io/socket.io',
+        "common" : '/scripts/common',
+        "config" : '/scripts/config'
+      },
+    });
+  
+    require(['game', 'lib/network/facade', 'lib/utils/fps', 'lib/utils/camera', 'artefact', 'tools/fpsmodule', 'tools/cameramodule', 'tools/mousemodule', 'tools/debugpannel'], 
+            function(Game, Network, Fps, Camera, Artefact, FpsModule, CameraModule, MouseModule, DebugPannel) {
+     "use strict";
+      var fps = Fps.create(120),
+      
+      debugPannel = DebugPannel.create($('#debugPannel div')),
+      network     = Network.create(),
+      game        = Artefact.create(network);
+      
+      Game.create(game).start(fps, $('#game'));
+      
+      debugPannel.registerModule(FpsModule.create(fps, 500));
+      debugPannel.registerModule(CameraModule.create(Camera.get(), 100));
+      debugPannel.registerModule(MouseModule.create(game, 100));     
+      
+      network.init(game);      
+      network.connect('127.0.0.1'); 
+    });
+
+    
+  });
+  </script>
+  <div id="debugPannel"><div>&nbsp;</div><span>&nbsp;</span></div>
+  <canvas id="game" width="1200" height="400" style="background-color: black">&nbsp;</canvas>
+</body>
+</html>
